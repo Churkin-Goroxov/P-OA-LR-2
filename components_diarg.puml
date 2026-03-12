@@ -1,0 +1,35 @@
+@startuml
+
+' Внешняя среда
+actor "Игрок" as Player
+
+component "Game CLI\n(main.py)" as C_Game
+component "Scenes\n(intro + главы)" as C_Scenes
+component "Core.Entities\n(entities.py)" as C_Entities
+component "Core.Battle\n(battle.py)" as C_Battle
+component "Core.GameMechanics\n(game_mechanics.py)" as C_Mech
+component "Core.UI\n(ui.py)" as C_UI
+component "Core.SaveSystem\n(save_system.py)" as C_Save
+component "Core.TextBank\n(text_bank.py)" as C_Text
+database "Data Storage\n(data/*)" as C_Data
+
+' Связи
+Player --> C_Game : ввод/вывод (консоль)
+
+C_Game --> C_Scenes : запуск сцен
+C_Game --> C_Save   : регистрация, вход, загрузка/сохранение
+C_Game --> C_Text   : тексты меню/пролога
+
+C_Scenes --> C_Entities : создание героя, босса
+C_Scenes --> C_Battle   : запуск боёв
+C_Scenes --> C_Save     : сохранение прогресса
+C_Scenes --> C_UI       : специальные терминалы (магазины)
+C_Scenes --> C_Text     : сюжетные блоки текста
+
+C_Battle --> C_Entities : Hero, Enemy
+C_Battle --> C_Mech     : эффекты, артефакты, инвентарь
+
+C_Mech --> C_Data : чтение/запись artifacts_pool.json
+C_Save --> C_Data : accounts.txt, players/*.json
+
+@enduml
