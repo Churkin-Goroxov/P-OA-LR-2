@@ -1,43 +1,105 @@
 @startuml
 left to right direction
 
+skinparam actor {
+  BackgroundColor LightGreen
+}
+
 actor "Игрок" as Player
 
 rectangle "За МКАДные ужасы 2" {
-  usecase "Зарегистрироваться" as UC_Register
-  usecase "Войти в игру" as UC_Login
-  usecase "Начать новую игру" as UC_NewGame
-  usecase "Продолжить игру" as UC_Continue
-  usecase "Выбрать героя" as UC_ChooseHero
-  usecase "Прочитать пролог" as UC_Prolog
-
-  usecase "Сразиться с боссом" as UC_Battle
-  usecase "Использовать инвентарь" as UC_Inventory
-  usecase "Использовать артефакт" as UC_Artifact
-  usecase "Посетить терминал" as UC_Shop
-
-  usecase "Сохранить прогресс" as UC_Save
-  usecase "Загрузить прогресс" as UC_Load
+  ' === МЕНЮ ===
+  usecase "1. Новая игра" as UC_New
+  usecase "2. Продолжить" as UC_Load
+  usecase "3. Пролог" as UC_Prolog
+  usecase "4. Выход" as UC_Exit
+  
+  ' === НОВАЯ ИГРА ===
+  usecase "Интро" as UC_Intro
+  usecase "Выбор героя" as UC_Hero
+  usecase "Глава 1" as UC_Ch1
+  
+  ' === ОБЩИЕ ДЛЯ ГЛАВ ===
+  usecase "Глава N" as UC_ChN
+  usecase "Сюжетный текст" as UC_Story
+  usecase "Обычный терминал" as UC_Terminal
+  usecase "Спец-терминал" as UC_STerminal
+  usecase "Бой с боссом" as UC_Battle
+  
+  ' === БОЙ ===
+  rectangle "run_battle()" {
+    usecase "1. Атака" as UC_Attack
+    usecase "2. Скилл" as UC_Skill  
+    usecase "3. Инвентарь" as UC_Inv
+    usecase "4. Артефакт" as UC_Art
+    usecase "Повторить бой" as UC_Retry
+    usecase "Отказаться" as UC_GiveUp
+  }
 }
 
-Player --> UC_Register
-Player --> UC_Login
-Player --> UC_NewGame
-Player --> UC_Continue
-Player --> UC_ChooseHero
-Player --> UC_Prolog
-Player --> UC_Battle
-Player --> UC_Inventory
-Player --> UC_Artifact
-Player --> UC_Shop
-Player --> UC_Save
-Player --> UC_Load
+' === МЕНЮ ===
+Player --> UC_New : main.py choice="1"
+Player --> UC_Load : main.py choice="2"
+Player --> UC_Prolog : main.py choice="3"
+Player --> UC_Exit : main.py choice="0"
 
-' Взаимосвязи use cases
-UC_NewGame --> UC_ChooseHero : «include»
-UC_NewGame --> UC_Save       : «include»
-UC_Continue --> UC_Load      : «include»
-UC_Battle --> UC_Save        : «include»
-UC_Shop --> UC_Save          : «include»
+' === НОВАЯ ИГРА: Интро → Выбор → Глава 1 ===
+UC_New ..> UC_Intro : <<include>>
+UC_Intro ..> UC_Hero : <<include>>
+UC_Hero ..> UC_Ch1 : <<include>>
+
+' === ПРОДОЛЖИТЬ ===
+UC_Load ..> UC_ChN : <<include>>
+
+' === ГЛАВА 1 / ГЛАВА N ===
+UC_Ch1 ..> UC_Story : <<include>>
+UC_Ch1 ..> UC_Battle : <<include>>
+UC_ChN ..> UC_Story : <<include>>
+UC_ChN ..> UC_Battle : <<include>>
+
+' === ТЕРМИНАЛЫ ===
+UC_Ch1 ..> UC_Terminal : <<extend>> (между главами)
+UC_ChN ..> UC_Terminal : <<extend>> (между главами) 
+UC_ChN ..> UC_STerminal : <<extend>> (только chapter_4)
+
+' === БОЙ ===
+UC_Battle ..> UC_Attack : <<extend>>
+UC_Battle ..> UC_Skill : <<extend>>
+UC_Battle ..> UC_Inv : <<extend>>
+UC_Battle ..> UC_Art : <<extend>>
+
+Player ..> UC_Retry : после поражения
+Player ..> UC_GiveUp : после поражения
+
+' === НОТЫ С КОДОМ ===
+note right of UC_New
+  main.py:
+  if choice == "1":
+    create_new_state()
+    run_game_loop()
+    # if current <= 0: intro.run()
+end note
+
+note right of UC_Load
+  main.py: 
+  if choice == "2":
+    load_state()
+    run_game_loop()
+    # current >= 1 → intro ПРОПУЩЕН!
+end note
+
+note right of UC_Ch1
+  chapter_1.run(state):
+  print(chapter_text)  # Сюжет
+  boss = create_boss(1)
+  run_battle(state, boss)
+end note
+
+note bottom of UC_ChN
+  chapter_N.run(state):
+  print(chapter_text)  # Сюжет
+  boss = create_boss(N)  
+  run_battle(state, boss)
+end note
 
 @enduml
