@@ -1,0 +1,50 @@
+@startuml
+
+entity "Account" as T_Account <<table>> {
+  * login : string
+  --
+  password : string
+}
+
+entity "PlayerState" as T_State <<table>> {
+  * login : string
+  --
+  chapter : int
+  clarity_points : int
+  flags : json
+}
+
+entity "HeroState" as T_Hero <<table>> {
+  * login : string
+  --
+  name : string
+  max_hp : int
+  hp : int
+  base_damage : int
+  resource_name : string
+  max_res : int
+  res : int
+  hero_class : string
+}
+
+entity "Artifact" as T_Artifact <<table>> {
+  * id : string
+  --
+  name : string
+  type : string
+  desc : string
+}
+
+entity "PlayerArtifact" as T_PlayerArtifact <<table>> {
+  * login : string
+  * artifact_id : string
+  --
+  is_permanent : bool
+}
+
+T_State ||--|| T_Account : "login"
+T_Hero  ||--|| T_Account : "login"
+T_PlayerArtifact }o--|| T_Account : "login"
+T_PlayerArtifact }o--|| T_Artifact : "artifact_id"
+
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+left to right direction
+
+actor "Игрок" as Player
+
+rectangle "За МКАДные ужасы 2" {
+  usecase "Зарегистрироваться" as UC_Register
+  usecase "Войти в игру" as UC_Login
+  usecase "Начать новую игру" as UC_NewGame
+  usecase "Продолжить игру" as UC_Continue
+  usecase "Выбрать героя" as UC_ChooseHero
+  usecase "Прочитать пролог" as UC_Prolog
+
+  usecase "Сразиться с боссом" as UC_Battle
+  usecase "Использовать инвентарь" as UC_Inventory
+  usecase "Использовать артефакт" as UC_Artifact
+  usecase "Посетить терминал" as UC_Shop
+
+  usecase "Сохранить прогресс" as UC_Save
+  usecase "Загрузить прогресс" as UC_Load
+}
+
+Player --> UC_Register
+Player --> UC_Login
+Player --> UC_NewGame
+Player --> UC_Continue
+Player --> UC_ChooseHero
+Player --> UC_Prolog
+Player --> UC_Battle
+Player --> UC_Inventory
+Player --> UC_Artifact
+Player --> UC_Shop
+Player --> UC_Save
+Player --> UC_Load
+
+' Взаимосвязи use cases
+UC_NewGame --> UC_ChooseHero : «include»
+UC_NewGame --> UC_Save       : «include»
+UC_Continue --> UC_Load      : «include»
+UC_Battle --> UC_Save        : «include»
+UC_Shop --> UC_Save          : «include»
+
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+' ==== Базовый уровень ====
+
+class ClampedInt {
+  - name: str
+  - min_value: int
+  - max_value: int
+  + __get__(instance, owner)
+  + __set__(instance, value)
+}
+
+class Character {
+  - name: str
+  - max_hp: int
+  - hp: int
+  - base_damage: int
+  - effects: List<Effect>
+  + is_alive(): bool
+  + hp_percent(): float
+  + apply_damage(dmg: int)
+  + heal(amount: int)
+}
+
+Character "1" o-- "*" Effect
+
+class Effect {
+  + name: str
+  + kind: str  ' pos/neg
+  + turns: int
+  + params: dict
+}
+
+' ==== Герой и враг ====
+
+class Hero {
+  + resource_name: str
+  + max_res: int
+  + res: int
+  + hero_class: str
+  + artifacts: List<Artifact>
+  + is_resource_enough(): bool
+}
+
+class Enemy {
+  + special: dict
+}
+
+Hero --|> Character
+Enemy --|> Character
+
+Hero "1" o-- "*" Artifact
+
+class Artifact {
+  + id: str
+  + name: str
+  + type: str  ' perm / cons
+  + desc: str
+}
+
+' ==== Инвентарь ====
+
+class Inventory {
+  - state: dict
+  + open_inventory(hero: Hero, boss: Enemy): bool
+}
+
+Inventory --> Hero
+Inventory --> Enemy
+
+@enduml
